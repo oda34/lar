@@ -2,13 +2,16 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>cardsample3</title> 
+  <title>card</title> 
 
   <!-- three.jsを読み込む(CDN) -->
   <script src="https://unpkg.com/three@0.137.4/build/three.min.js"></script>
   <script src="https://unpkg.com/three@0.137.4/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
+   <h1>シャッフルされたカード</h1>
+  カードを作成して乱数を使うことでランダムに表示されるようにした。<br>
+ 　カードは円状に配置されるようにした<br>
   <script>
     //ページの読み込みを待つ
     window.addEventListener('DOMContentLoaded', init);
