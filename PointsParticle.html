@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Points Particle</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="./libs/three.min.js"></script>
+    <script src="./libs/stats.min.js"></script>
+    <script src="./libs/tweakpane-3.0.6.min.js"></script>
+    <script src="./PointsParticleSystem.js"></script>
+    <script src="OrbitControls.js"></script>
+    <script>
+      function randomInSphere() {
+        const cosTheta = -2.0 * Math.random() + 1.0;
+        const sinTheta = Math.sqrt(1.0 - cosTheta * cosTheta);
+        const phi = 2.0 * Math.PI * Math.random();
+        const radius = Math.pow(Math.random(), 1.0 / 3.0);
+        return new THREE.Vector3(radius * sinTheta * Math.cos(phi), radius * sinTheta * Math.sin(phi), radius * cosTheta);
+      }
+
+      class GridPointsParticleSystem extends PointsParticleSystem {
+        constructor(material, capacity, options) {
+          super(material, capacity, options);
+          this._idCount = 0;
+
+          this._gridSize = 40;
+          this._gridSizeHalf = 0.5 * this._gridSize;
+          this._gridDivision = 20;
+          this._gridDivision2 = this._gridDivision * this._gridDivision;
+          this._gridSpacing = this._gridSize / this._gridDivision;
+
+          this._velocities = new Array(capacity);
+          for (let i = 0; i < capacity; ++i) {
+            this._velocities[i] = new THREE.Vector3();
+          }
+
+          this._velocity = new THREE.Vector3();
+        }
+
+        createParticle(output, parameters) {
+          const id = this._idCount++;
+
+         const radius = (Math.min(this._gridSize, this._gridSizeHalf) - 1) * this._gridSpacing;
+          const theta = Math.random() * 2 * Math.PI;
+          const phi = Math.acos(2 * Math.random() - 1);
+
+          const x = radius * Math.sin(phi) * Math.cos(theta);
+          const y = radius * Math.sin(phi) * Math.sin(theta);
+          const z = radius * Math.cos(phi);
+
+          output.position.set(x, y, z);
+          output.scale = 0.0;
+          if (this.useColor) {
+            const hue = theta / (2 * Math.PI);
+            const saturation = phi / Math.PI;
+            output.color.setHSL(hue, saturation, 0.5);
+          }
+
+
+          this._velocities[parameters.index].copy(randomInSphere());
+        }
+
+        updateParticle(output, parameters) {
+          this._velocity.copy(this._velocities[parameters.index]);
+          this._velocity.multiplyScalar(2.0 * parameters.deltaSeconds);
+          output.position.copy(parameters.position);
+          output.position.add(this._velocity);
+          output.scale = Math.sin(Math.PI * parameters.age / parameters.life);
+          if (this.useColor) {
+            output.color.copy(parameters.color);
+          }
+        }
+      }
+
+      const stats = new Stats();
+      document.body.appendChild(stats.dom);
+
+      const parameters = {
+        birthRate: 300,
+        lifeExpectancy: 3.0,
+        lifeVariance: 0.5,
+        backgroundColorR: 0,
+        backgroundColorG: 0, 
+        backgroundColorB: 0, 
+      };
+
+      const pane = new Tweakpane.Pane();
+      pane.addInput(parameters, 'birthRate', { min: 0, max: 1000 })
+        .on('change', (ev) => {
+          particleSystem.birthRate = ev.value;
+        });
+      pane.addInput(parameters, 'lifeExpectancy', { min: 0, max: 10.0 })
+        .on('change', (ev) => {
+          particleSystem.lifeExpectancy = ev.value;
+        });
+      pane.addInput(parameters, 'lifeVariance', { min: 0.0, max: 1.0 })
+        .on('change', (ev) => {
+          particleSystem.lifeVariance = ev.value;
+        });
+      pane.addInput(parameters, 'backgroundColorR', { min: 0, max: 255 })
+        .on('change', (ev) => {
+          const color = new THREE.Color(parameters.backgroundColorR / 255, parameters.backgroundColorG / 255, parameters.backgroundColorB / 255);
+          renderer.setClearColor(color);
+        });
+
+      pane.addInput(parameters, 'backgroundColorG', { min: 0, max: 255 })
+        .on('change', (ev) => {
+          const color = new THREE.Color(parameters.backgroundColorR / 255, parameters.backgroundColorG / 255, parameters.backgroundColorB / 255);
+          renderer.setClearColor(color);
+        });
+
+      pane.addInput(parameters, 'backgroundColorB', { min: 0, max: 255 })
+        .on('change', (ev) => {
+          const color = new THREE.Color(parameters.backgroundColorR / 255, parameters.backgroundColorG / 255, parameters.backgroundColorB / 255);
+          renderer.setClearColor(color);
+        });
+
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      document.body.appendChild(renderer.domElement);
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.x=50;
+      camera.position.y=30;
+      camera.position.z=70;
+      camera.lookAt(0, 0, 0);
+       const controls = new THREE.OrbitControls(camera, renderer.domElement);
+       
+
+      const light = new THREE.DirectionalLight(0xffffff, 1);
+      light.position.set(0, 1, 0); // 
+      light.target.position.set(0, 0, 0); // 
+      scene.add(light);
+
+      const material = new ParticlePointsMaterial({
+        size: 2.0,
+        vertexColors: true,
+      });
+      const particleSystem = new GridPointsParticleSystem(material, 10000, {
+        birthRate: parameters.birthRate,
+        lifeExpectancy: parameters.lifeExpectancy,
+        lifeVariance: parameters.lifeVariance,
+        useColor: true,
+      });
+      scene.add(particleSystem.points);
+
+      const clock = new THREE.Clock();
+      const loop = () => {
+        requestAnimationFrame(loop);
+        stats.begin();
+        const deltaSeconds = Math.min(0.1, clock.getDelta());
+        particleSystem.update(deltaSeconds);
+        renderer.render(scene, camera);
+        stats.end();
+      }
+
+      function resize() {
+        //const width = window.innerWidth;
+        //const height = window.innerHeight;
+        const width = 800;
+        const height = 600;
+
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(width, height);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+
+      }
+      window.addEventListener('resize', resize);
+
+      loop();
+
+    </script>
+  </body>
+</html>
