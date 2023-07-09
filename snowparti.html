@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Particle Experiment</title>
+    <style>
+      body { margin: 0; }
+      canvas { display: block; }
+    </style>
+  </head>
+  <body>
+    <script src="https://threejs.org/build/three.js"></script>
+    <script src="https://threejs.org/examples/js/libs/stats.min.js"></script>
+    <script src="particles.js"></script>
+    <script>
+      let scene, camera, renderer, particles;
+
+      function init() {
+        // シーンの作成
+        scene = new THREE.Scene();
+
+        // カメラの作成
+        camera = new THREE.PerspectiveCamera(
+          75,
+          window.innerWidth / window.innerHeight,
+          1,
+          10000
+        );
+        camera.position.z = 1000;
+
+        // レンダラーの作成
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0xffffdd);
+
+        // DOMに追加
+        document.body.appendChild(renderer.domElement);
+
+        // パーティクルの作成
+        particles = new THREE.Group();
+        scene.add(particles);
+
+        // テクスチャの読み込み
+        const textureLoader = new THREE.TextureLoader();
+        const texture = textureLoader.load('snow_crystal3.png');
+
+        // パーティクルの材質を作成
+        const particleMaterial = new THREE.SpriteMaterial({ map: texture });
+
+        // パーティクルに材質を適用
+        for (let i = 0; i < 1000; i++) {
+          let particle = new THREE.Sprite(particleMaterial);
+          particle.position.x = Math.random() * 2000 - 1000;
+          particle.position.y = Math.random() * 2000 - 1000;
+          particle.position.z = Math.random() * 2000 - 1000;
+          particle.scale.x = particle.scale.y = Math.random() * 10 + 10;
+          particles.add(particle);
+        }
+
+        // レンダリング開始
+        animate();
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+
+        // パーティクルの回転
+        particles.rotation.x += 0.005;
+        particles.rotation.y += 0.01;
+
+        // レンダリング
+        renderer.render(scene, camera);
+      }
+
+      // 初期化
+      init();
+    </script>
+  </body>
+</html>
