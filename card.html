@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>card</title> 
+
+  <!-- three.jsを読み込む(CDN) -->
+  <script src="https://unpkg.com/three@0.137.4/build/three.min.js"></script>
+  <script src="https://unpkg.com/three@0.137.4/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+  <script>
+    //ページの読み込みを待つ
+    window.addEventListener('DOMContentLoaded', init);
+
+    
+
+    function init() {
+      var width = 800,
+          height = 600;
+      var containerCount = 52; // 箱の数
+      var radius = 10; // 円の半径
+
+      //配列を作成し、1から52までの数値を代入
+      var deck = [];
+      for (var i = 1; i <= 52; i++) {
+        deck.push(i);
+      }
+
+      //配列のシャッフル
+      for (var i = deck.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = deck[i];
+        deck[i] = deck[j];
+        deck[j] = temp;
+      }
+
+      //レンダラーの作成
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize(width, height);
+      document.body.appendChild(renderer.domElement);
+
+      //シーンの作成
+      var scene = new THREE.Scene();
+
+      //カメラの作成
+      var camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+      camera.position.z=30;
+
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      
+      // 平行光源1
+      //var directionalLight1 = new THREE.DirectionalLight(0xffffff);
+      //directionalLight1.position.set(10, 10, 10);
+      // シーンに追加
+      //scene.add(directionalLight1);
+      // 平行光源2
+      //var directionalLight2 = new THREE.DirectionalLight(0x888888);
+      //directionalLight2.position.set(-10, -10, 10);
+      // シーンに追加
+      //scene.add(directionalLight2);
+      
+      //光源の作成
+      var light = new THREE.PointLight(0xffffff);
+      light.position.set(0, 0, 20); //光源の位置を設定
+      scene.add(light);
+      var light2 = new THREE.PointLight(0xffffff);
+      light2.position.set(0, 0, -20); //光源の位置を設定
+      scene.add(light2);
+
+      //カードの作成
+      var geometry = new THREE.BoxGeometry(1, 2, 0.001);
+      
+
+      //グループを作成
+      var group = new THREE.Group();
+
+      //カードをグループに追加
+      for (var i = 0; i < containerCount; i++) {
+        var textureLoader = new THREE.TextureLoader();
+        // ランダムな番号の生成
+        var i = Math.floor(Math.random() * 52) + 1;
+
+        // トランプのテクスチャを読み込み
+        var cardTexture = textureLoader.load("cards/cards/1.png");
+
+        // トランプの裏面のテクスチャを読み込み
+        var backTexture = textureLoader.load("cards/cards/c1.png");
+
+        // トランプの表面のマテリアルを作成
+        var frontMaterial = new THREE.MeshLambertMaterial({ map: cardTexture, transparent: true });
+
+        // トランプの裏面のマテリアルを作成
+        var backMaterial = new THREE.MeshLambertMaterial({ map: backTexture, transparent: true });
+
+        // トランプの表面と裏面のマテリアルを適用
+        var materials = [backMaterial, frontMaterial, backMaterial, frontMaterial, backMaterial, frontMaterial];
+        var mesh = new THREE.Mesh(geometry, materials);
+        var material = new THREE.MeshFaceMaterial(materials); //マテリアルをセット
+        var card = new THREE.Mesh(geometry, material);
+        var angle = (i / containerCount) * Math.PI * 2;
+        var z = Math.cos(angle) * radius;
+        var x = Math.sin(angle) * radius;
+
+        card.position.z = z; //z座標を設定
+        card.position.x = x; //x座標を設定
+
+        group.add(card.clone()); //グループにオブジェクトを追加
+      }
+
+      //グループをシーンに追加
+      scene.add(group);
+
+      function animate() {
+        requestAnimationFrame(animate);
+
+        // グループを回転
+        //group.rotation.x += 0.01;
+        group.rotation.y += 0.001;
+
+        renderer.render(scene, camera);
+      }
+
+      //アニメーションを開始
+      animate();
+    }
+  </script>
+</body>
+</html>
