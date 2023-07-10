@@ -84,8 +84,8 @@
         }
       }
 
-      const stats = new Stats();
-      document.body.appendChild(stats.dom);
+      //const stats = new Stats();
+      //document.body.appendChild(stats.dom);
 
       const parameters = {
         birthRate: 300,
@@ -158,15 +158,15 @@
       });
       scene.add(particleSystem.points);
 
-      const clock = new THREE.Clock();
-      const loop = () => {
-        requestAnimationFrame(loop);
-        stats.begin();
-        const deltaSeconds = Math.min(0.1, clock.getDelta());
-        particleSystem.update(deltaSeconds);
-        renderer.render(scene, camera);
-        stats.end();
-      }
+      //const clock = new THREE.Clock();
+      //const loop = () => {
+      //  requestAnimationFrame(loop);
+      //  stats.begin();
+      //  const deltaSeconds = Math.min(0.1, clock.getDelta());
+      //  particleSystem.update(deltaSeconds);
+      //  renderer.render(scene, camera);
+       // stats.end();
+      //}
 
       function resize() {
         //const width = window.innerWidth;
