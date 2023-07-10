@@ -11,7 +11,7 @@
     </style>
   </head>
   <body>
-    <h1>pointsを使ったパーティクルの表現</h1>
+    <h2>pointsを使ったパーティクルの表現</h2>
   <li><a href="https://qiita.com/aa_debdeb/items/3ab85f8d2a472c93f7ea">three.jsのPointsでパーティクルシステム</a>を参考にしながら作った。</li><br>
   大きな変更点はパーティクルの配置の方法を変更することで球体状にパーティクルが現れるようにした。<br>
   また、RGBで３つのパラメータを追加して背景の色を変えれるようにした。<br>
@@ -136,7 +136,7 @@
       const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
       camera.position.x=50;
       camera.position.y=30;
-      camera.position.z=70;
+      camera.position.z=80;
       camera.lookAt(0, 0, 0);
        const controls = new THREE.OrbitControls(camera, renderer.domElement);
        
