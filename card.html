@@ -11,12 +11,10 @@
 <body>
    <h1>シャッフルされたカード</h1>
   カードを作成して乱数を使うことでランダムに表示されるようにした。<br>
- 　カードは円状に配置されるようにした<br>
+  カードは円状に配置されるようにした<br>
   <script>
     //ページの読み込みを待つ
     window.addEventListener('DOMContentLoaded', init);
-
-    
 
     function init() {
       var width = 800,
@@ -51,17 +49,6 @@
       camera.position.z=30;
 
       const controls = new THREE.OrbitControls(camera, renderer.domElement);
-      
-      // 平行光源1
-      //var directionalLight1 = new THREE.DirectionalLight(0xffffff);
-      //directionalLight1.position.set(10, 10, 10);
-      // シーンに追加
-      //scene.add(directionalLight1);
-      // 平行光源2
-      //var directionalLight2 = new THREE.DirectionalLight(0x888888);
-      //directionalLight2.position.set(-10, -10, 10);
-      // シーンに追加
-      //scene.add(directionalLight2);
       
       //光源の作成
       var light = new THREE.PointLight(0xffffff);
